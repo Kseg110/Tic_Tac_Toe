@@ -1,16 +1,17 @@
 using UnityEngine;
+using TMPro;
+using System.Collections;
 
 public class PlayerInputs : MonoBehaviour
 {
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
+    private int moveCounter = 0;
+    public int MoveCounter => moveCounter;
+
+    private void Awake()
     {
-        
+        moveCounter = 0;
     }
 
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
+
+
 }
