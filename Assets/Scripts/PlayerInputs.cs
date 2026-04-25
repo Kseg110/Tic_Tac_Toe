@@ -1,15 +1,15 @@
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
-using System.Collections;
+using System;
 using System.Collections.Generic;
 
 public class PlayerInputs : MonoBehaviour
 {
-    public List<Button> gameButtons = new List<Button>();
-    public List<TMP_Text> gameText = new List<TMP_Text>();
-    //private int moveCounter = 0;
-    //public int MoveCounter => moveCounter;
+    public List<Button> gameButtons;
+    public List<TMP_Text> gameText;
+
+    public event Action<int> OnPlayerMove;
 
     private void Awake()
     {
@@ -22,13 +22,15 @@ public class PlayerInputs : MonoBehaviour
 
     private void Start()
     {
-        foreach (Button btn in gameButtons)
+        for (int i = 0; i < gameButtons.Count; i++)
         {
-            btn.onClick.AddListener(() => InputXOnClick(btn));
+            int index = i;
+            gameButtons[i].onClick.AddListener(() => InputXOnClick(index));
         }
     }
-    void InputXOnClick(Button clickedButton)
+    public void InputXOnClick(int index)
     {
+        Button clickedButton = gameButtons[index];
         TMP_Text tmpText = clickedButton.GetComponentInChildren<TMP_Text>();
         if (tmpText != null)
         {
@@ -45,6 +47,7 @@ public class PlayerInputs : MonoBehaviour
         clickedButton.interactable = false; // disables button after interacted 
         
         Debug.Log("Player Placed an X");
+        OnPlayerMove?.Invoke(index);
     }
 
 }
