@@ -11,12 +11,24 @@ using UnityEditor;
 
 public class GameManager : MonoBehaviour
 {
+    [Header("Panels + Buttons")]
     [SerializeField] private GameObject menuPanel;
+    [SerializeField] private GameObject endPanel;
     [SerializeField] private Button startButton;
     [SerializeField] private Button resetButton;
-    [SerializeField] private Button quitButton;
+    [SerializeField] private Button[] quitButtons;
+    [SerializeField] private Button replayButton;
 
+    [Header("UI Text Elements")]
+    [SerializeField] private TMP_Text winsText;
+    [SerializeField] private TMP_Text lossText;
+    [SerializeField] private TMP_Text drawText;
+
+
+    [Header("Game Ref")]
     [SerializeField] private PlayerInputs playerInputs;
+
+    
 
     private readonly int[] board = new int[9];
     private bool isPlayersTurn = true;
@@ -40,6 +52,12 @@ public class GameManager : MonoBehaviour
         EnableAllButtons(true);
     }
 
+    void ReplayClicked()
+    {
+        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+        menuPanel.SetActive(false);
+    }
+
     void QuitClicked()
     {
 #if UNITY_EDITOR
@@ -52,9 +70,16 @@ public class GameManager : MonoBehaviour
     {
         startButton.onClick.AddListener(PlayClicked);
         resetButton.onClick.AddListener(() => SceneManager.LoadScene(0));
-        quitButton.onClick.AddListener(QuitClicked);
-
+        foreach (var btn in quitButtons)
+        {
+            btn.onClick.AddListener(QuitClicked);
+        }
+        replayButton.onClick.AddListener(ReplayClicked);
         playerInputs.OnPlayerMove += OnPlayerMove;
+
+        winsText.text = $"Player: {ScoreKeeper.WinCount}";
+        lossText.text = $"AI: {ScoreKeeper.LossCount}";
+        drawText.text = $"Draw: {ScoreKeeper.DrawCount}";
     }
 
     private void OnDestroy()
@@ -120,22 +145,38 @@ public class GameManager : MonoBehaviour
         {
             gameActive = false;
             EnableAllButtons(false);
+            ScoreKeeper.WinCount++;
             Debug.Log("Player Wins");
-            // Win UI here
+            endPanel.SetActive(true);
+            winsText.text = $"Player: {ScoreKeeper.WinCount}";
+            Transform child = endPanel.transform.Find("Titles/WinTitle");
+            if (child != null)
+                child.gameObject.SetActive(true);
+
         }
         else if (winner == 1)
         {
             gameActive = false;
             EnableAllButtons(false);
+            ScoreKeeper.LossCount++;
             Debug.Log("AI Wins / Player Loss");
-            // Loss UI here
+            endPanel.SetActive(true);
+            lossText.text = $"AI: {ScoreKeeper.LossCount}";
+            Transform child = endPanel.transform.Find("Titles/LossTitle");
+            if (child != null)
+                child.gameObject.SetActive(true);
         }
         else if (IsBoardFull())
         {
             gameActive = false;
             EnableAllButtons(false);
+            ScoreKeeper.DrawCount++;
             Debug.Log("Draw game");
-            // Draw- Tie UI here
+            endPanel.SetActive(true);
+            drawText.text = $"Draws: {ScoreKeeper.DrawCount}";
+            Transform child = endPanel.transform.Find("Titles/DrawTitle");
+            if (child != null)
+                child.gameObject.SetActive(true);
         }
     }
 
